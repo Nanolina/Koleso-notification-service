@@ -1,1 +1,1 @@
-# Koleso-notification-service
+# This repository is used to manage mailings: to email, telephone
