@@ -1,7 +1,7 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { LoggerError } from '../common/logger';
+import { MyLogger } from '../common/logger';
 import { UserCreatedDto } from './dto';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class EmailService {
     private readonly mailerService: MailerService,
   ) {}
 
-  private readonly logger = new LoggerError(EmailService.name);
+  private readonly logger = new MyLogger(EmailService.name);
 
   async sendEmail(dto: UserCreatedDto): Promise<any> {
     const { email, activationLink } = dto;
@@ -21,14 +21,10 @@ export class EmailService {
         to: email,
         from: this.configService.get<string>('SMTP_USER'),
         subject: 'Email confirmation',
-        text: '',
-        html: `
-                <div>
-                  <h3>We are glad you have registered on the Koleso platform!</h3>
-                  <p>Please confirm your email by clicking on the link below:</p>
-                  <p><a href=${activationLink}>${activationLink}</a></p>
-                 </div>
-              `,
+        template: 'confirmation-email',
+        context: {
+          activationLink,
+        },
       });
     } catch (error) {
       this.logger.error({ method: 'sendEmail', error });
