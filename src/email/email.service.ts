@@ -13,7 +13,12 @@ export class EmailService {
   ) {}
 
   async sendEmailConfirmation(dto: UserCreatedDto): Promise<void> {
-    const { email, activationLink } = dto;
+    const { email, activationLinkId } = dto;
+
+    // Get full activation link
+    const activationLink = `${this.configService.get<string>(
+      'AUTH_SERVICE_URL',
+    )}/auth/activate/${activationLinkId}`;
 
     try {
       await this.mailerService.sendMail({
@@ -26,7 +31,7 @@ export class EmailService {
         },
       });
     } catch (error) {
-      this.logger.error({ method: 'sendEmail', error });
+      this.logger.error({ method: 'sendEmailConfirmation', error });
     }
   }
 }

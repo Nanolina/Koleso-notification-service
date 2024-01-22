@@ -5,5 +5,5 @@ export class UserCreatedDto {
   email: string;
 
   @IsString()
-  activationLink: string;
+  activationLinkId: string;
 }
