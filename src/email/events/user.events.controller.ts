@@ -1,14 +1,15 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
-import { MyLogger } from '../../common/logger';
+import { MyLogger } from '../../logger/my-logger.service';
 import { UserCreatedDto } from '../dto';
 import { EmailService } from '../email.service';
 
 @Controller()
 export class UserEventsController {
-  constructor(private emailService: EmailService) {}
-
-  private readonly logger = new MyLogger(EmailService.name);
+  constructor(
+    private emailService: EmailService,
+    private readonly logger: MyLogger,
+  ) {}
 
   @EventPattern('user_created')
   async userCreatedEvent(dto: UserCreatedDto) {

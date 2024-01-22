@@ -1,7 +1,7 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MyLogger } from '../common/logger';
+import { MyLogger } from '../logger/my-logger.service';
 import { UserCreatedDto } from './dto';
 
 @Injectable()
@@ -9,9 +9,8 @@ export class EmailService {
   constructor(
     private configService: ConfigService,
     private readonly mailerService: MailerService,
+    private readonly logger: MyLogger,
   ) {}
-
-  private readonly logger = new MyLogger(EmailService.name);
 
   async sendEmailConfirmation(dto: UserCreatedDto): Promise<void> {
     const { email, activationLink } = dto;

@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as path from 'path';
 import { EmailModule } from './email/email.module';
+import { LoggerModule } from './logger/logger.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { EmailModule } from './email/email.module';
         },
       }),
     }),
+    LoggerModule,
   ],
 })
 export class AppModule {}
