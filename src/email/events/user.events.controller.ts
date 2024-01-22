@@ -11,12 +11,12 @@ export class UserEventsController {
   private readonly logger = new MyLogger(EmailService.name);
 
   @EventPattern('user_created')
-  async getUserData(dto: UserCreatedDto) {
+  async userCreatedEvent(dto: UserCreatedDto) {
     this.logger.log({
-      method: 'getUserData, event: user_created',
+      method: 'userCreatedEvent',
       log: `received data for email: ${dto.email}`,
     });
 
-    await this.emailService.sendEmail(dto);
+    await this.emailService.sendEmailConfirmation(dto);
   }
 }

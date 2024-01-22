@@ -13,7 +13,7 @@ export class EmailService {
 
   private readonly logger = new MyLogger(EmailService.name);
 
-  async sendEmail(dto: UserCreatedDto): Promise<any> {
+  async sendEmailConfirmation(dto: UserCreatedDto): Promise<void> {
     const { email, activationLink } = dto;
 
     try {
@@ -21,7 +21,7 @@ export class EmailService {
         to: email,
         from: this.configService.get<string>('SMTP_USER'),
         subject: 'Email confirmation',
-        template: 'confirmation-email',
+        template: 'email-confirmation',
         context: {
           activationLink,
         },
