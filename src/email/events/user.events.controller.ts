@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
 import { MyLogger } from '../../logger/my-logger.service';
-import { UserCreatedDto } from '../dto';
+import { PasswordResetRequestedDto, UserCreatedDto } from '../dto';
 import { EmailService } from '../email.service';
 
 @Controller()
@@ -19,5 +19,15 @@ export class UserEventsController {
     });
 
     await this.emailService.sendEmailConfirmation(dto);
+  }
+
+  @EventPattern('password_reset_requested')
+  async passwordResetRequestedEvent(dto: PasswordResetRequestedDto) {
+    this.logger.log({
+      method: 'passwordResetRequestedEvent',
+      log: `received data for email: ${dto.email}`,
+    });
+
+    await this.emailService.sendPasswordResetLink(dto);
   }
 }

@@ -1,8 +1,9 @@
 import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { UNKNOWN_ERROR_TRY } from '../consts';
 import { MyLogger } from '../logger/my-logger.service';
-import { UserCreatedDto } from './dto';
+import { PasswordResetRequestedDto, UserCreatedDto } from './dto';
 
 @Injectable()
 export class EmailService {
@@ -32,6 +33,33 @@ export class EmailService {
       });
     } catch (error) {
       this.logger.error({ method: 'sendEmailConfirmation', error });
+
+      throw new InternalServerErrorException(UNKNOWN_ERROR_TRY);
+    }
+  }
+
+  async sendPasswordResetLink(dto: PasswordResetRequestedDto): Promise<void> {
+    const { userId, email, passwordResetToken } = dto;
+
+    // Get full password reset link
+    const passwordResetLink = `${this.configService.get<string>(
+      'AUTH_SERVICE_URL',
+    )}/auth/password/reset/${userId}/${passwordResetToken}`;
+
+    try {
+      await this.mailerService.sendMail({
+        to: email,
+        from: this.configService.get<string>('SMTP_USER'),
+        subject: 'Password reset',
+        template: 'password-reset',
+        context: {
+          passwordResetLink,
+        },
+      });
+    } catch (error) {
+      this.logger.error({ method: 'sendEmailConfirmation', error });
+
+      throw new InternalServerErrorException(UNKNOWN_ERROR_TRY);
     }
   }
 }
