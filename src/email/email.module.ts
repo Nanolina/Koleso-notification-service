@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AtStrategy } from '../common/strategies';
+import { AuthModule } from '../auth/auth.module';
 import { LoggerModule } from '../logger/logger.module';
 import { EmailController } from './email.controller';
 import { EmailService } from './email.service';
 import { UserEventsController } from './events';
 
 @Module({
-  imports: [LoggerModule],
+  imports: [LoggerModule, AuthModule],
   controllers: [UserEventsController, EmailController],
-  providers: [EmailService, AtStrategy],
+  providers: [EmailService],
 })
 export class EmailModule {}
