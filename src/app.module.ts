@@ -10,6 +10,8 @@ import { LoggerModule } from './logger/logger.module';
 @Module({
   imports: [
     EmailModule,
+    LoggerModule,
+    AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -33,8 +35,6 @@ import { LoggerModule } from './logger/logger.module';
         },
       }),
     }),
-    LoggerModule,
-    AuthModule,
   ],
 })
 export class AppModule {}
