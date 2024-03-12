@@ -6,6 +6,7 @@ import * as path from 'path';
 import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import { LoggerModule } from './logger/logger.module';
+import { PrismaService } from './prisma/prisma.service';
 
 @Module({
   imports: [
@@ -36,5 +37,6 @@ import { LoggerModule } from './logger/logger.module';
       }),
     }),
   ],
+  providers: [PrismaService],
 })
 export class AppModule {}
