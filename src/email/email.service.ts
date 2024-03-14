@@ -66,7 +66,6 @@ export class EmailService {
       });
 
       this.logger.error({ method: 'sendEmailConfirmation-sendMail', error });
-
       throw new InternalServerErrorException(UNKNOWN_ERROR_TRY);
     }
   }
@@ -121,7 +120,6 @@ export class EmailService {
       });
 
       this.logger.error({ method: 'sendPasswordResetLink-sendMail', error });
-
       throw new InternalServerErrorException(UNKNOWN_ERROR_TRY);
     }
   }

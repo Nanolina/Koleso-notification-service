@@ -30,4 +30,14 @@ export class UserEventsController {
 
     await this.emailService.sendPasswordResetLink(dto);
   }
+
+  @EventPattern('email_changed')
+  async emailChangedEvent(dto: any) {
+    this.logger.log({
+      method: 'emailChangedEvent',
+      log: `received data for email: ${dto.email}`,
+    });
+
+    await this.emailService.sendEmailConfirmation(dto);
+  }
 }
