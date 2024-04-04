@@ -23,10 +23,13 @@ async function bootstrap() {
     transport: Transport.RMQ,
     options: {
       urls: [configService.get<string>('RABBITMQ_URL')],
-      queue: configService.get<string>('RABBITMQ_AUTH_QUEUE'),
+      queue: configService.get<string>('RABBITMQ_NOTIFICATION_QUEUE'),
       queueOptions: {
-        durable: false,
+        durable: true,
+        exclusive: false,
       },
+      noAck: false,
+      prefetchCount: 1,
     },
   };
 
