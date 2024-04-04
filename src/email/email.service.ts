@@ -17,7 +17,7 @@ export class EmailService {
   ) {}
 
   async sendEmailConfirmation(dto: UserCreatedDto): Promise<void> {
-    const { id, email, activationLinkId } = dto;
+    const { id, email, activationLinkId, role } = dto;
 
     const subject = 'Email confirmation';
     const template = EmailTemplate.CONFIRMATION;
@@ -25,7 +25,7 @@ export class EmailService {
     // Get full activation link
     const activationLink = `${this.configService.get<string>(
       'AUTH_SERVICE_URL',
-    )}/auth/activate/${activationLinkId}`;
+    )}/auth/activate/${activationLinkId}/${role}`;
 
     let newEmail;
     try {
