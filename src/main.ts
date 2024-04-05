@@ -19,7 +19,7 @@ async function bootstrap() {
   );
 
   // Create microservices
-  const authMicroserviceOptions: MicroserviceOptions = {
+  const notificationMicroserviceOptions: MicroserviceOptions = {
     transport: Transport.RMQ,
     options: {
       urls: [configService.get<string>('RABBITMQ_URL')],
@@ -33,7 +33,22 @@ async function bootstrap() {
     },
   };
 
+  const authMicroserviceOptions: MicroserviceOptions = {
+    transport: Transport.RMQ,
+    options: {
+      urls: [configService.get<string>('RABBITMQ_URL')],
+      queue: configService.get<string>('RABBITMQ_AUTH_QUEUE'),
+      queueOptions: {
+        durable: true,
+        exclusive: false,
+      },
+      noAck: false,
+    },
+  };
+
   app.connectMicroservice(authMicroserviceOptions);
+  app.connectMicroservice(notificationMicroserviceOptions);
+
   await app.startAllMicroservices();
 
   await app.listen(3003);

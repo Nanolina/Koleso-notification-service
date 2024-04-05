@@ -4,7 +4,7 @@ import { MyLogger } from '../../logger/my-logger.service';
 import { EmailService } from '../email.service';
 
 @Controller()
-export class UserEventsController {
+export class NotificationEventsController {
   constructor(
     private emailService: EmailService,
     private readonly logger: MyLogger,
@@ -20,20 +20,6 @@ export class UserEventsController {
         case 'user_created':
           this.logger.log({
             method: 'user_created event',
-            log: `received data for email: ${dto.email}`,
-          });
-          await this.emailService.sendEmailConfirmation(dto);
-          break;
-        case 'password_reset_requested':
-          this.logger.log({
-            method: 'password_reset_requested event',
-            log: `received data for email: ${dto.email}`,
-          });
-          await this.emailService.sendPasswordResetLink(dto);
-          break;
-        case 'email_changed':
-          this.logger.log({
-            method: 'email_changed event',
             log: `received data for email: ${dto.email}`,
           });
           await this.emailService.sendEmailConfirmation(dto);

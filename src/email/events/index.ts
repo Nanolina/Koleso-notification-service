@@ -1,1 +1,2 @@
-export { UserEventsController } from './user.events.controller';
+export { AuthEventsController } from './auth.events.controller';
+export { NotificationEventsController } from './notification.events.controller';

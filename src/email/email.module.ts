@@ -4,11 +4,15 @@ import { LoggerModule } from '../logger/logger.module';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailController } from './email.controller';
 import { EmailService } from './email.service';
-import { UserEventsController } from './events';
+import { AuthEventsController, NotificationEventsController } from './events';
 
 @Module({
   imports: [LoggerModule, AuthModule],
-  controllers: [UserEventsController, EmailController],
+  controllers: [
+    AuthEventsController,
+    NotificationEventsController,
+    EmailController,
+  ],
   providers: [EmailService, PrismaService],
 })
 export class EmailModule {}
