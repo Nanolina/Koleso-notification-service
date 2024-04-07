@@ -71,7 +71,7 @@ export class EmailService {
   }
 
   async sendPasswordResetLink(dto: PasswordResetRequestedDto): Promise<void> {
-    const { userId, email, passwordResetToken } = dto;
+    const { userId, email, passwordResetToken, role } = dto;
 
     const subject = 'Password reset';
     const template = EmailTemplate.PASSWORD_RESET;
@@ -79,7 +79,7 @@ export class EmailService {
     // Get full password reset link
     const passwordResetLink = `${this.configService.get<string>(
       'AUTH_SERVICE_URL',
-    )}/auth/password/reset/${userId}/${passwordResetToken}`;
+    )}/auth/password/reset/${userId}/${passwordResetToken}/${role}`;
 
     let newEmail;
     try {

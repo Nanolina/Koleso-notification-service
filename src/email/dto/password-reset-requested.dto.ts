@@ -1,4 +1,13 @@
-import { IsEmail, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import {
+  IsDefined,
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  IsUUID,
+  Validate,
+} from 'class-validator';
+import { RoleType } from '../../common';
+import { IsValidRoleConstraint } from '../validators';
 
 export class PasswordResetRequestedDto {
   @IsUUID()
@@ -10,4 +19,8 @@ export class PasswordResetRequestedDto {
   @IsString()
   @IsNotEmpty()
   passwordResetToken: string;
+
+  @IsDefined()
+  @Validate(IsValidRoleConstraint)
+  role: RoleType;
 }
