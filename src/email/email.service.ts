@@ -5,7 +5,8 @@ import { EmailTemplate } from '@prisma/client';
 import { UNKNOWN_ERROR_TRY } from '../consts';
 import { MyLogger } from '../logger/my-logger.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { PasswordResetRequestedDto, UserCreatedDto } from './dto';
+import { VerificationCodeDto } from './dto';
+import { TypeVerificationCode } from './types';
 
 @Injectable()
 export class EmailService {
@@ -16,16 +17,14 @@ export class EmailService {
     private readonly logger: MyLogger,
   ) {}
 
-  async sendEmailConfirmation(dto: UserCreatedDto): Promise<void> {
-    const { id, email, activationLinkId, role } = dto;
+  async sendVerificationCode(
+    dto: VerificationCodeDto,
+    type: TypeVerificationCode,
+  ): Promise<void> {
+    const { id, email, verificationCodeEmail } = dto;
 
-    const subject = 'Email confirmation';
-    const template = EmailTemplate.CONFIRMATION;
-
-    // Get full activation link
-    const activationLink = `${this.configService.get<string>(
-      'AUTH_SERVICE_URL',
-    )}/auth/activate/${activationLinkId}/${role}`;
+    const subject = `Your verification code: ${verificationCodeEmail}`;
+    const template = EmailTemplate.VERIFICATION_CODE;
 
     let newEmail;
     try {
@@ -34,15 +33,17 @@ export class EmailService {
           email,
           subject,
           template,
-          link: activationLink,
+          code: verificationCodeEmail,
           userId: id,
         },
       });
     } catch (error) {
       this.logger.error({
-        method: 'sendEmailConfirmation-create-newEmail',
+        method: 'email-sendVerificationCode-create',
         error,
       });
+
+      throw new InternalServerErrorException('Failed to create email record');
     }
 
     try {
@@ -52,7 +53,11 @@ export class EmailService {
         to: email,
         from: this.configService.get<string>('SMTP_USER'),
         context: {
-          activationLink,
+          type,
+          code: verificationCodeEmail,
+          minutes: this.configService.get<string>(
+            'VERIFICATION_CODE_EXPIRES_IN_MINUTES',
+          ),
         },
       });
     } catch (error) {
@@ -65,61 +70,7 @@ export class EmailService {
         },
       });
 
-      this.logger.error({ method: 'sendEmailConfirmation-sendMail', error });
-      throw new InternalServerErrorException(UNKNOWN_ERROR_TRY);
-    }
-  }
-
-  async sendPasswordResetLink(dto: PasswordResetRequestedDto): Promise<void> {
-    const { userId, email, passwordResetToken, role } = dto;
-
-    const subject = 'Password reset';
-    const template = EmailTemplate.PASSWORD_RESET;
-
-    // Get full password reset link
-    const passwordResetLink = `${this.configService.get<string>(
-      'AUTH_SERVICE_URL',
-    )}/auth/password/reset/${userId}/${passwordResetToken}/${role}`;
-
-    let newEmail;
-    try {
-      newEmail = await this.prisma.email.create({
-        data: {
-          email,
-          subject,
-          template,
-          userId,
-          link: passwordResetLink,
-        },
-      });
-    } catch (error) {
-      this.logger.error({
-        method: 'sendPasswordResetLink-create-newEmail',
-        error,
-      });
-    }
-
-    try {
-      await this.mailerService.sendMail({
-        to: email,
-        from: this.configService.get<string>('SMTP_USER'),
-        subject,
-        template,
-        context: {
-          passwordResetLink,
-        },
-      });
-    } catch (error) {
-      await this.prisma.email.update({
-        where: {
-          id: newEmail?.id,
-        },
-        data: {
-          errorMessage: error?.message || error,
-        },
-      });
-
-      this.logger.error({ method: 'sendPasswordResetLink-sendMail', error });
+      this.logger.error({ method: 'email-sendVerificationCode-send', error });
       throw new InternalServerErrorException(UNKNOWN_ERROR_TRY);
     }
   }

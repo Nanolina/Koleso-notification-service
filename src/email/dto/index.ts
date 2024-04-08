@@ -1,2 +1,1 @@
-export { PasswordResetRequestedDto } from './password-reset-requested.dto';
-export { UserCreatedDto } from './user-created.dto';
+export { VerificationCodeDto } from './verification-code.dto';

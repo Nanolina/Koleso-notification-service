@@ -11,7 +11,7 @@ model Email {
   id           String        @id @default(uuid())
   userId       String
   email        String
-  link         String
+  code         Int
   subject      String
   template     EmailTemplate
   errorMessage String?
@@ -20,6 +20,5 @@ model Email {
 }
 
 enum EmailTemplate {
-  CONFIRMATION
-  PASSWORD_RESET
+  VERIFICATION_CODE
 }

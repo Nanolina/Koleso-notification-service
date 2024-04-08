@@ -1,8 +1,9 @@
 import { Controller } from '@nestjs/common';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { MyLogger } from '../../logger/my-logger.service';
-import { PasswordResetRequestedDto, UserCreatedDto } from '../dto';
+import { VerificationCodeDto } from '../dto';
 import { EmailService } from '../email.service';
+import { TypeVerificationCode } from '../types';
 
 @Controller()
 export class AuthEventsController {
@@ -13,7 +14,7 @@ export class AuthEventsController {
 
   @EventPattern('password_reset_requested')
   async passwordResetRequestedEvent(
-    @Payload() dto: PasswordResetRequestedDto,
+    @Payload() dto: VerificationCodeDto,
     @Ctx() context: RmqContext,
   ) {
     const channel = context.getChannelRef();
@@ -21,17 +22,20 @@ export class AuthEventsController {
 
     try {
       this.logger.log({
-        method: 'passwordResetRequestedEvent',
+        method: 'auth-passwordResetRequestedEvent',
         log: `received data for email: ${dto.email}`,
       });
 
-      await this.emailService.sendPasswordResetLink(dto);
+      await this.emailService.sendVerificationCode(
+        dto,
+        TypeVerificationCode.RESET_PASSWORD,
+      );
 
       // Confirmation of successful message processing
       channel.ack(originalMsg);
     } catch (error) {
       this.logger.error({
-        method: 'password_reset_requested',
+        method: 'auth-password_reset_requested',
         error: `Error processing message: ${error.toString()}`,
       });
 
@@ -42,7 +46,7 @@ export class AuthEventsController {
 
   @EventPattern('email_changed')
   async emailChangedEvent(
-    @Payload() dto: UserCreatedDto,
+    @Payload() dto: VerificationCodeDto,
     @Ctx() context: RmqContext,
   ) {
     const channel = context.getChannelRef();
@@ -54,12 +58,15 @@ export class AuthEventsController {
         log: `received data for email: ${dto.email}`,
       });
 
-      await this.emailService.sendEmailConfirmation(dto);
+      await this.emailService.sendVerificationCode(
+        dto,
+        TypeVerificationCode.CONFIRM,
+      );
       // Confirmation of successful message processing
       channel.ack(originalMsg);
     } catch (error) {
       this.logger.error({
-        method: 'email_changed',
+        method: 'auth-email_changed',
         error: `Error processing message: ${error.toString()}`,
       });
 

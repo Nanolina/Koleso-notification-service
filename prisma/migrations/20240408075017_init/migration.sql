@@ -1,12 +1,12 @@
 -- CreateEnum
-CREATE TYPE "EmailTemplate" AS ENUM ('CONFIRMATION', 'PASSWORD_RESET');
+CREATE TYPE "EmailTemplate" AS ENUM ('VERIFICATION_CODE');
 
 -- CreateTable
 CREATE TABLE "Email" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "link" TEXT NOT NULL,
+    "code" INTEGER NOT NULL,
     "subject" TEXT NOT NULL,
     "template" "EmailTemplate" NOT NULL,
     "errorMessage" TEXT,
