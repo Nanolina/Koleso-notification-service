@@ -74,4 +74,35 @@ export class AuthEventsController {
       channel.nack(originalMsg, false, true);
     }
   }
+
+  @EventPattern('email_confirmation_code_resended')
+  async emailConfirmationCodeResendedEvent(
+    @Payload() dto: VerificationCodeDto,
+    @Ctx() context: RmqContext,
+  ) {
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
+    try {
+      this.logger.log({
+        method: 'emailConfirmationCodeResendedEvent',
+        log: `received data for email: ${dto.email}`,
+      });
+
+      await this.emailService.sendVerificationCode(
+        dto,
+        TypeVerificationCode.CONFIRM,
+      );
+      // Confirmation of successful message processing
+      channel.ack(originalMsg);
+    } catch (error) {
+      this.logger.error({
+        method: 'auth-email_confirmation_code_resended',
+        error: `Error processing message: ${error.toString()}`,
+      });
+
+      // Resend the message to the queue
+      channel.nack(originalMsg, false, true);
+    }
+  }
 }
