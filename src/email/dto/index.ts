@@ -1,1 +1,1 @@
-export { VerificationCodeDto } from './verification-code.dto';
+export { CodeDto } from './code.dto';

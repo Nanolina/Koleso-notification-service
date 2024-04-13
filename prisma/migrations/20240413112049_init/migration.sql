@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "EmailTemplate" AS ENUM ('VERIFICATION_CODE');
+CREATE TYPE "EmailTemplate" AS ENUM ('CODE');
 
 -- CreateTable
 CREATE TABLE "Email" (

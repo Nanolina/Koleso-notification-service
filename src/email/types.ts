@@ -1,4 +1,4 @@
-export enum TypeVerificationCode {
-  CONFIRM = 'confirm your email',
-  RESET_PASSWORD = 'reset the password',
+export enum CodeType {
+  EMAIL_CONFIRMATION = 'confirm your email',
+  PASSWORD_RESET = 'reset the password',
 }

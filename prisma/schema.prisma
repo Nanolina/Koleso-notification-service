@@ -20,5 +20,5 @@ model Email {
 }
 
 enum EmailTemplate {
-  VERIFICATION_CODE
+  CODE
 }

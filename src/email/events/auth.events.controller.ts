@@ -1,9 +1,8 @@
 import { Controller } from '@nestjs/common';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { MyLogger } from '../../logger/my-logger.service';
-import { VerificationCodeDto } from '../dto';
+import { CodeDto } from '../dto';
 import { EmailService } from '../email.service';
-import { TypeVerificationCode } from '../types';
 
 @Controller()
 export class AuthEventsController {
@@ -14,7 +13,7 @@ export class AuthEventsController {
 
   @EventPattern('password_reset_requested')
   async passwordResetRequestedEvent(
-    @Payload() dto: VerificationCodeDto,
+    @Payload() dto: CodeDto,
     @Ctx() context: RmqContext,
   ) {
     const channel = context.getChannelRef();
@@ -26,10 +25,7 @@ export class AuthEventsController {
         log: `received data for email: ${dto.email}`,
       });
 
-      await this.emailService.sendVerificationCode(
-        dto,
-        TypeVerificationCode.RESET_PASSWORD,
-      );
+      await this.emailService.sendCode(dto);
 
       // Confirmation of successful message processing
       channel.ack(originalMsg);
@@ -45,10 +41,7 @@ export class AuthEventsController {
   }
 
   @EventPattern('email_changed')
-  async emailChangedEvent(
-    @Payload() dto: VerificationCodeDto,
-    @Ctx() context: RmqContext,
-  ) {
+  async emailChangedEvent(@Payload() dto: CodeDto, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
@@ -58,10 +51,7 @@ export class AuthEventsController {
         log: `received data for email: ${dto.email}`,
       });
 
-      await this.emailService.sendVerificationCode(
-        dto,
-        TypeVerificationCode.CONFIRM,
-      );
+      await this.emailService.sendCode(dto);
       // Confirmation of successful message processing
       channel.ack(originalMsg);
     } catch (error) {
@@ -77,7 +67,7 @@ export class AuthEventsController {
 
   @EventPattern('email_confirmation_code_resended')
   async emailConfirmationCodeResendedEvent(
-    @Payload() dto: VerificationCodeDto,
+    @Payload() dto: CodeDto,
     @Ctx() context: RmqContext,
   ) {
     const channel = context.getChannelRef();
@@ -89,10 +79,7 @@ export class AuthEventsController {
         log: `received data for email: ${dto.email}`,
       });
 
-      await this.emailService.sendVerificationCode(
-        dto,
-        TypeVerificationCode.CONFIRM,
-      );
+      await this.emailService.sendCode(dto);
       // Confirmation of successful message processing
       channel.ack(originalMsg);
     } catch (error) {

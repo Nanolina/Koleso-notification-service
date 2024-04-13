@@ -2,7 +2,6 @@ import { Controller } from '@nestjs/common';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { MyLogger } from '../../logger/my-logger.service';
 import { EmailService } from '../email.service';
-import { TypeVerificationCode } from '../types';
 
 @Controller()
 export class NotificationEventsController {
@@ -23,10 +22,7 @@ export class NotificationEventsController {
             method: 'user_created event',
             log: `received data for email: ${dto.email}`,
           });
-          await this.emailService.sendVerificationCode(
-            dto,
-            TypeVerificationCode.CONFIRM,
-          );
+          await this.emailService.sendCode(dto);
           break;
         default:
           this.logger.log({
