@@ -92,4 +92,32 @@ export class AuthEventsController {
       channel.nack(originalMsg, false, true);
     }
   }
+
+  @EventPattern('password_reset_code_resended')
+  async passwordResetCodeResendedEvent(
+    @Payload() dto: CodeDto,
+    @Ctx() context: RmqContext,
+  ) {
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
+    try {
+      this.logger.log({
+        method: 'passwordResetCodeResendedEvent',
+        log: `received data for email: ${dto.email}`,
+      });
+
+      await this.emailService.sendCode(dto);
+      // Confirmation of successful message processing
+      channel.ack(originalMsg);
+    } catch (error) {
+      this.logger.error({
+        method: 'auth-password_reset_code_resended',
+        error: `Error processing message: ${error.toString()}`,
+      });
+
+      // Resend the message to the queue
+      channel.nack(originalMsg, false, true);
+    }
+  }
 }

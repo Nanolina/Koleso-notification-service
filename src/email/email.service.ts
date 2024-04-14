@@ -6,6 +6,7 @@ import { UNKNOWN_ERROR_TRY } from '../consts';
 import { MyLogger } from '../logger/my-logger.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CodeDto } from './dto';
+import { CodeType } from './types';
 
 @Injectable()
 export class EmailService {
@@ -21,6 +22,17 @@ export class EmailService {
 
     const subject = `Your code: ${code}`;
     const template = EmailTemplate.CODE;
+    let codeTypeText;
+    switch (codeType) {
+      case CodeType.EMAIL_CONFIRMATION:
+        codeTypeText = 'confirm your email';
+        break;
+      case CodeType.PASSWORD_RESET:
+        codeTypeText = 'reset the password';
+        break;
+      default:
+        codeTypeText = '';
+    }
 
     let newEmail;
     try {
@@ -50,7 +62,7 @@ export class EmailService {
         from: this.configService.get<string>('SMTP_USER'),
         context: {
           code,
-          codeType,
+          codeType: codeTypeText,
           minutes: this.configService.get<string>('CODE_EXPIRES_IN_MINUTES'),
         },
       });
