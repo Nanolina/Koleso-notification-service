@@ -11,27 +11,26 @@ export class AuthEventsController {
     private readonly logger: MyLogger,
   ) {}
 
-  @EventPattern('password_reset_requested')
-  async passwordResetRequestedEvent(
-    @Payload() dto: CodeDto,
-    @Ctx() context: RmqContext,
+  private async handleEvent(
+    eventMethod: string,
+    dto: CodeDto,
+    context: RmqContext,
   ) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
     try {
       this.logger.log({
-        method: 'auth-passwordResetRequestedEvent',
-        log: `received data for email: ${dto.email}`,
+        method: eventMethod,
+        log: `Received data for email: ${dto.email}`,
       });
-
       await this.emailService.sendCode(dto);
 
       // Confirmation of successful message processing
       channel.ack(originalMsg);
     } catch (error) {
       this.logger.error({
-        method: 'auth-password_reset_requested',
+        method: eventMethod,
         error: `Error processing message: ${error.toString()}`,
       });
 
@@ -40,29 +39,17 @@ export class AuthEventsController {
     }
   }
 
+  @EventPattern('password_reset_requested')
+  async passwordResetRequestedEvent(
+    @Payload() dto: CodeDto,
+    @Ctx() context: RmqContext,
+  ) {
+    await this.handleEvent('auth-passwordResetRequestedEvent', dto, context);
+  }
+
   @EventPattern('email_changed')
   async emailChangedEvent(@Payload() dto: CodeDto, @Ctx() context: RmqContext) {
-    const channel = context.getChannelRef();
-    const originalMsg = context.getMessage();
-
-    try {
-      this.logger.log({
-        method: 'emailChangedEvent',
-        log: `received data for email: ${dto.email}`,
-      });
-
-      await this.emailService.sendCode(dto);
-      // Confirmation of successful message processing
-      channel.ack(originalMsg);
-    } catch (error) {
-      this.logger.error({
-        method: 'auth-email_changed',
-        error: `Error processing message: ${error.toString()}`,
-      });
-
-      // Resend the message to the queue
-      channel.nack(originalMsg, false, true);
-    }
+    await this.handleEvent('emailChangedEvent', dto, context);
   }
 
   @EventPattern('email_confirmation_code_resended')
@@ -70,27 +57,7 @@ export class AuthEventsController {
     @Payload() dto: CodeDto,
     @Ctx() context: RmqContext,
   ) {
-    const channel = context.getChannelRef();
-    const originalMsg = context.getMessage();
-
-    try {
-      this.logger.log({
-        method: 'emailConfirmationCodeResendedEvent',
-        log: `received data for email: ${dto.email}`,
-      });
-
-      await this.emailService.sendCode(dto);
-      // Confirmation of successful message processing
-      channel.ack(originalMsg);
-    } catch (error) {
-      this.logger.error({
-        method: 'auth-email_confirmation_code_resended',
-        error: `Error processing message: ${error.toString()}`,
-      });
-
-      // Resend the message to the queue
-      channel.nack(originalMsg, false, true);
-    }
+    await this.handleEvent('emailConfirmationCodeResendedEvent', dto, context);
   }
 
   @EventPattern('password_reset_code_resended')
@@ -98,26 +65,6 @@ export class AuthEventsController {
     @Payload() dto: CodeDto,
     @Ctx() context: RmqContext,
   ) {
-    const channel = context.getChannelRef();
-    const originalMsg = context.getMessage();
-
-    try {
-      this.logger.log({
-        method: 'passwordResetCodeResendedEvent',
-        log: `received data for email: ${dto.email}`,
-      });
-
-      await this.emailService.sendCode(dto);
-      // Confirmation of successful message processing
-      channel.ack(originalMsg);
-    } catch (error) {
-      this.logger.error({
-        method: 'auth-password_reset_code_resended',
-        error: `Error processing message: ${error.toString()}`,
-      });
-
-      // Resend the message to the queue
-      channel.nack(originalMsg, false, true);
-    }
+    await this.handleEvent('passwordResetCodeResendedEvent', dto, context);
   }
 }
